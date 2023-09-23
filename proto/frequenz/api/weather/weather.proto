@@ -88,6 +88,7 @@ message ForecastRequest {
   // The end of the period for which the forecast is being requested.
   google.protobuf.Timestamp end_ts = 4;
 
+  // Optional for StreamLiveWeatherForecast, ignored if provided.
   // Specifies the maximum number of forecasts to be returned in a single
   // response.
   int32 page_size = 5;
