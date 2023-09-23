@@ -23,8 +23,9 @@ import "google/protobuf/timestamp.proto";
 //     Weather forecasts are inherently uncertain and actual conditions may
 //     vary. Use the data responsibly.
 service WeatherForecastService {
-  // Streams the weather forecast features for a geo location.
-  rpc SubscribeWeatherForecast(ForecastRequest)
+  // Streams live weather forecast features for a geo location as they become
+  // available. Initially, the most recent forecast will be streamed.
+  rpc StreamLiveWeatherForecast (ForecastRequest)
     returns (stream ForecastResponse);
 }
 
@@ -74,14 +75,12 @@ message ForecastRequest {
   // will be streamed.
   repeated ForecastFeature features = 2;
 
+  // Optional for StreamLiveWeatherForecast, ignored if provided.
   // The start of the period for which the forecast is being requested.
-  // If not provided, the service will default to the most recent forecast
-  // available.
   google.protobuf.Timestamp start_ts = 3;
 
+  // Optional for StreamLiveWeatherForecast, ignored if provided.
   // The end of the period for which the forecast is being requested.
-  // If not provided, the forecast will be streamed indefinitely as new data 
-  // becomes available.
   google.protobuf.Timestamp end_ts = 4;
 
   // Specifies the maximum number of forecasts to be returned in a single
