@@ -23,6 +23,11 @@ import "google/protobuf/timestamp.proto";
 //     Weather forecasts are inherently uncertain and actual conditions may
 //     vary. Use the data responsibly.
 service WeatherForecastService {
+  // Returns historical weather forecast features for a geo location for a
+  // specified time range.
+  rpc GetHistoricalWeatherForecast (ForecastRequest)
+    returns (ForecastResponse);
+
   // Streams live weather forecast features for a geo location as they become
   // available. Initially, the most recent forecast will be streamed.
   rpc StreamLiveWeatherForecast (ForecastRequest)
