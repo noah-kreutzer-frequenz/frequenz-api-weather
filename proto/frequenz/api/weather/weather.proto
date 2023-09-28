@@ -76,7 +76,7 @@ message ForecastRequest {
   // The location for which the forecast is being requested.
   frequenz.api.common.location.Location location = 1;
 
-  // List of required features.  If none are specified, all available features
+  // List of required features. If none are specified, all available features
   // will be streamed.
   repeated ForecastFeature features = 2;
 
