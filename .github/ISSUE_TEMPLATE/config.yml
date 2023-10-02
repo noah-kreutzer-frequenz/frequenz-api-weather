@@ -4,5 +4,5 @@
 blank_issues_enabled: true
 contact_links:
   - name: Ask a question ❓
-    url: https://github.com/frequenz-io/api-weather-spec/discussions/categories/support
+    url: https://github.com/frequenz-floss/frequenz-api-weather/discussions/new?category=support
     about: Use this if you are not sure how to do something, have installation problems, etc.

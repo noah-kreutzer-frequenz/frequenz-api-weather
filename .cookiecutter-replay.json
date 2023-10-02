@@ -1,9 +1,9 @@
 {
   "cookiecutter": {
-    "Introduction": "",  
+    "Introduction": "",
     "type": "api",
     "name": "weather",
-    "description": "Protobuf spec for the weather API.",
+    "description": "Frequenz gRPC API for retrieving weather forecasts.",
     "title": "Frequenz Weather API",
     "keywords": "(comma separated: 'frequenz', <type> and <name> are included automatically)",
     "github_org": "frequenz-floss",
