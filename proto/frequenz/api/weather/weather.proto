@@ -80,12 +80,12 @@ message GetHistoricalWeatherForecastRequest {
   // will be returned.
   repeated ForecastFeature features = 2;
 
-  // The start of the period for which the historical forecast is being
-  // requested.
+  // The UTC timestamp indicating the start of the requested historical forecast
+  // period.
   google.protobuf.Timestamp start_ts = 3;
 
-  // The end of the period for which the historical forecast is being
-  // requested.
+  // The UTC timestamp indicating the end of the requested historical forecast
+  // period.
   google.protobuf.Timestamp end_ts = 4;
 
   // Specifies the maximum number of forecasts to be returned in a single
@@ -107,7 +107,7 @@ message StreamLiveWeatherForecastRequest {
 
 // The ForecastResponse message encapsulates the weather forecast data returned
 // by the SubscribeWeatherForecast method. It provides a structured format for
-// representing forecast data for a specific location, including timestamps
+// representing forecast data for a specific location, including UTC timestamps
 // for validity and creation.
 message ForecastResponse {
 
@@ -124,7 +124,7 @@ message ForecastResponse {
       float value = 2;
     }
 
-    // The timestamp for which the features in this entry are valid for.
+    // The UTC timestamp for which the features in this entry are valid for.
     google.protobuf.Timestamp valid_at_ts = 1;
 
     // All requested weather features.
@@ -137,6 +137,6 @@ message ForecastResponse {
   // The location for which the weather data is returned.
   frequenz.api.common.location.Location location = 2;
 
-  // The timestamp indicating when the forecast was originally created. 
+  // The UTC timestamp indicating when the forecast was originally created.
   google.protobuf.Timestamp creation_ts = 3;
 }
