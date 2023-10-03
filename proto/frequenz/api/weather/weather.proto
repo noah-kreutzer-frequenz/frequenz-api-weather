@@ -31,7 +31,7 @@ service WeatherForecastService {
   // Streams live weather forecast features for a geo location as they become
   // available. Initially, the most recent forecast will be streamed.
   rpc StreamLiveWeatherForecast (StreamLiveWeatherForecastRequest)
-    returns (stream ForecastResponse);
+    returns (stream StreamLiveWeatherForecastResponse);
 }
 
 
@@ -99,8 +99,10 @@ message GetHistoricalWeatherForecastRequest {
 // requesting live weather forecasts for a specified location, with designated
 // features.
 message StreamLiveWeatherForecastRequest {
-  // The location for which the forecast is being requested.
-  frequenz.api.common.location.Location location = 1;
+  // The locations for which the forecast is being requested.
+  // The maximum number of locations that can be requested is 50. If the
+  // request exceeds this limit, the API will respond with an error.
+  repeated frequenz.api.common.location.Location locations = 1;
 
   // List of required features. If none are specified, all available features
   // will be streamed.
@@ -145,5 +147,11 @@ message LocationForecast {
 // The message encapsulates a collection of historical weather forecasts, each
 // corresponding to a requested location.
 message GetHistoricalWeatherForecastResponse {
+  repeated LocationForecast location_forecasts = 1;
+}
+
+// The message encapsulates a collection of live weather forecasts, each
+// corresponding to a requested location.
+message StreamLiveWeatherForecastResponse {
   repeated LocationForecast location_forecasts = 1;
 }
