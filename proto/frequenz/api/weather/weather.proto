@@ -25,12 +25,12 @@ import "google/protobuf/timestamp.proto";
 service WeatherForecastService {
   // Returns historical weather forecast features for a geo location for a
   // specified time range.
-  rpc GetHistoricalWeatherForecast (ForecastRequest)
+  rpc GetHistoricalWeatherForecast (GetHistoricalWeatherForecastRequest)
     returns (ForecastResponse);
 
   // Streams live weather forecast features for a geo location as they become
   // available. Initially, the most recent forecast will be streamed.
-  rpc StreamLiveWeatherForecast (ForecastRequest)
+  rpc StreamLiveWeatherForecast (StreamLiveWeatherForecastRequest)
     returns (stream ForecastResponse);
 }
 
@@ -69,34 +69,45 @@ enum ForecastFeature {
   FORECAST_FEATURE_SURFACE_NET_SOLAR_RADIATION = 4;
 }
 
-// The ForecastRequest message is used to specify the parameters for the
-// SubscribeWeatherForecast method. It allows users to request weather forecasts
-// for a specific location and time period, with specified features. 
-message ForecastRequest {
+// The GetHistoricalWeatherForecastRequest message defines parameters for
+// retrieving historical weather forecasts, targeting a specific location
+// and time period, with designated features.
+message GetHistoricalWeatherForecastRequest {
+  // The location for which the forecast is being requested.
+  frequenz.api.common.location.Location location = 1;
+
+  // List of required features. If none are specified, all available features
+  // will be returned.
+  repeated ForecastFeature features = 2;
+
+  // The UTC timestamp indicating the start of the requested historical forecast
+  // period.
+  google.protobuf.Timestamp start_ts = 3;
+
+  // The UTC timestamp indicating the end of the requested historical forecast
+  // period.
+  google.protobuf.Timestamp end_ts = 4;
+
+  // Specifies the maximum number of forecasts to be returned in a single
+  // response.
+  int32 page_size = 5;
+}
+
+// The StreamLiveWeatherForecastRequest message defines parameters for 
+// requesting live weather forecasts for a specified location, with designated
+// features.
+message StreamLiveWeatherForecastRequest {
   // The location for which the forecast is being requested.
   frequenz.api.common.location.Location location = 1;
 
   // List of required features. If none are specified, all available features
   // will be streamed.
   repeated ForecastFeature features = 2;
-
-  // Optional for StreamLiveWeatherForecast, ignored if provided.
-  // The start of the period for which the forecast is being requested.
-  google.protobuf.Timestamp start_ts = 3;
-
-  // Optional for StreamLiveWeatherForecast, ignored if provided.
-  // The end of the period for which the forecast is being requested.
-  google.protobuf.Timestamp end_ts = 4;
-
-  // Optional for StreamLiveWeatherForecast, ignored if provided.
-  // Specifies the maximum number of forecasts to be returned in a single
-  // response.
-  int32 page_size = 5;
 }
 
 // The ForecastResponse message encapsulates the weather forecast data returned
 // by the SubscribeWeatherForecast method. It provides a structured format for
-// representing forecast data for a specific location, including timestamps
+// representing forecast data for a specific location, including UTC timestamps
 // for validity and creation.
 message ForecastResponse {
 
@@ -113,7 +124,7 @@ message ForecastResponse {
       float value = 2;
     }
 
-    // The timestamp for which the features in this entry are valid for.
+    // The UTC timestamp for which the features in this entry are valid for.
     google.protobuf.Timestamp valid_at_ts = 1;
 
     // All requested weather features.
@@ -126,6 +137,6 @@ message ForecastResponse {
   // The location for which the weather data is returned.
   frequenz.api.common.location.Location location = 2;
 
-  // The timestamp indicating when the forecast was originally created. 
+  // The UTC timestamp indicating when the forecast was originally created.
   google.protobuf.Timestamp creation_ts = 3;
 }
