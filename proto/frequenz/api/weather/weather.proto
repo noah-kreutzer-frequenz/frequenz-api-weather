@@ -30,8 +30,8 @@ service WeatherForecastService {
 
   // Streams live weather forecast features for a geo location as they become
   // available. Initially, the most recent forecast will be streamed.
-  rpc StreamLiveWeatherForecast (StreamLiveWeatherForecastRequest)
-    returns (stream StreamLiveWeatherForecastResponse);
+  rpc ReceiveLiveWeatherForecast (ReceiveLiveWeatherForecastRequest)
+    returns (stream ReceiveLiveWeatherForecastResponse);
 }
 
 
@@ -95,10 +95,10 @@ message GetHistoricalWeatherForecastRequest {
   int32 page_size = 5;
 }
 
-// The StreamLiveWeatherForecastRequest message defines parameters for
+// The `ReceiveLiveWeatherForecastRequest` message defines parameters for
 // requesting live weather forecasts for a specified location, with designated
 // features.
-message StreamLiveWeatherForecastRequest {
+message ReceiveLiveWeatherForecastRequest {
   // The locations for which the forecast is being requested.
   // The maximum number of locations that can be requested is 50. If the
   // request exceeds this limit, the API will respond with an error.
@@ -152,6 +152,6 @@ message GetHistoricalWeatherForecastResponse {
 
 // The message encapsulates a collection of live weather forecasts, each
 // corresponding to a requested location.
-message StreamLiveWeatherForecastResponse {
+message ReceiveLiveWeatherForecastResponse {
   repeated LocationForecast location_forecasts = 1;
 }
