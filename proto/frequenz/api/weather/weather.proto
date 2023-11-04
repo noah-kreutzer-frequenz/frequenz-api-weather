@@ -69,7 +69,7 @@ enum ForecastFeature {
   FORECAST_FEATURE_SURFACE_NET_SOLAR_RADIATION = 4;
 }
 
-// The GetHistoricalWeatherForecastRequest message defines parameters for
+// The `GetHistoricalWeatherForecastRequest` message defines parameters for
 // retrieving historical weather forecasts, targeting a specific location
 // and time period, with designated features.
 message GetHistoricalWeatherForecastRequest {
