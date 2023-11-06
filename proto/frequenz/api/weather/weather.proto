@@ -15,7 +15,7 @@ import "google/protobuf/timestamp.proto";
 
 
 // Service provides operations related to retrieving weather forecasts for
-// locations. 
+// locations.
 //
 // The forecasts are updated regularly, and the service will stream the latest
 // available data unless a specific time range is requested.
@@ -26,17 +26,17 @@ service WeatherForecastService {
   // Returns historical weather forecast features for a geo location for a
   // specified time range.
   rpc GetHistoricalWeatherForecast (GetHistoricalWeatherForecastRequest)
-    returns (ForecastResponse);
+    returns (GetHistoricalWeatherForecastResponse);
 
   // Streams live weather forecast features for a geo location as they become
   // available. Initially, the most recent forecast will be streamed.
-  rpc StreamLiveWeatherForecast (StreamLiveWeatherForecastRequest)
-    returns (stream ForecastResponse);
+  rpc ReceiveLiveWeatherForecast (ReceiveLiveWeatherForecastRequest)
+    returns (stream ReceiveLiveWeatherForecastResponse);
 }
 
 
 // Weather features (e.g. wind speeds or solar radiation) available for query
-// through the API. 
+// through the API.
 enum ForecastFeature {
   // Default value. When used, the API responds with all features listed below.
   FORECAST_FEATURE_UNSPECIFIED = 0;
@@ -69,12 +69,14 @@ enum ForecastFeature {
   FORECAST_FEATURE_SURFACE_NET_SOLAR_RADIATION = 4;
 }
 
-// The GetHistoricalWeatherForecastRequest message defines parameters for
+// The `GetHistoricalWeatherForecastRequest` message defines parameters for
 // retrieving historical weather forecasts, targeting a specific location
 // and time period, with designated features.
 message GetHistoricalWeatherForecastRequest {
-  // The location for which the forecast is being requested.
-  frequenz.api.common.location.Location location = 1;
+  // The locations for which the forecast is being requested.
+  // The maximum number of locations that can be requested is 50. If the
+  // request exceeds this limit, the API will respond with an error.
+  repeated frequenz.api.common.location.Location locations = 1;
 
   // List of required features. If none are specified, all available features
   // will be returned.
@@ -93,23 +95,24 @@ message GetHistoricalWeatherForecastRequest {
   int32 page_size = 5;
 }
 
-// The StreamLiveWeatherForecastRequest message defines parameters for 
+// The `ReceiveLiveWeatherForecastRequest` message defines parameters for
 // requesting live weather forecasts for a specified location, with designated
 // features.
-message StreamLiveWeatherForecastRequest {
-  // The location for which the forecast is being requested.
-  frequenz.api.common.location.Location location = 1;
+message ReceiveLiveWeatherForecastRequest {
+  // The locations for which the forecast is being requested.
+  // The maximum number of locations that can be requested is 50. If the
+  // request exceeds this limit, the API will respond with an error.
+  repeated frequenz.api.common.location.Location locations = 1;
 
   // List of required features. If none are specified, all available features
   // will be streamed.
   repeated ForecastFeature features = 2;
 }
 
-// The ForecastResponse message encapsulates the weather forecast data returned
-// by the SubscribeWeatherForecast method. It provides a structured format for
-// representing forecast data for a specific location, including UTC timestamps
-// for validity and creation.
-message ForecastResponse {
+// The `ForecastResponse` message  provides a structured format for representing
+// forecast data for a specific location, including UTC timestamps for validity
+// and creation.
+message LocationForecast {
 
   // Holds all weather features forecast for a certain point in time.
   message Forecasts {
@@ -118,7 +121,7 @@ message ForecastResponse {
     message FeatureForecast {
       ForecastFeature feature = 1;
 
-      // Value of the feature. Unit depends on the feature (e.g., m/s for wind 
+      // Value of the feature. Unit depends on the feature (e.g., m/s for wind
       // speed, W/m² for radiation). Details can be found in the
       // ForecastFeature enum under each feature.
       float value = 2;
@@ -139,4 +142,16 @@ message ForecastResponse {
 
   // The UTC timestamp indicating when the forecast was originally created.
   google.protobuf.Timestamp creation_ts = 3;
+}
+
+// The message encapsulates a collection of historical weather forecasts, each
+// corresponding to a requested location.
+message GetHistoricalWeatherForecastResponse {
+  repeated LocationForecast location_forecasts = 1;
+}
+
+// The message encapsulates a collection of live weather forecasts, each
+// corresponding to a requested location.
+message ReceiveLiveWeatherForecastResponse {
+  repeated LocationForecast location_forecasts = 1;
 }

@@ -9,6 +9,7 @@
 
 ## New Features
 
+- Add support to support requests for multiple locations in a single request.
 
 ## Bug Fixes
 
