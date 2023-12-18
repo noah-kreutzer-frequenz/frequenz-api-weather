@@ -26,8 +26,11 @@ classifiers = [
 ]
 requires-python = ">= 3.11, < 4"
 dependencies = [
-  "googleapis-common-protos >= 1.56.2, < 2",
-  "grpcio >= 1.51.1, < 2",
+  "googleapis-common-protos >= 1.62.0, < 2",
+  "grpcio >= 1.54.2, < 2",
+  "frequenz-channels >= 0.16.0, < 0.17.0",
+  "frequenz-client-base >= 0.1.0, < 0.2",
+  "numpy >= 1.24.2, < 2",
 ]
 dynamic = ["version"]
 
@@ -134,7 +137,7 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["pytests"]
+testpaths = ["tests"]
 
 [tool.mypy]
 explicit_package_bases = true
