@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""Module to define the client class"""
+"""The Weather Forecast API client."""
 
 import grpc
 from frequenz.api.weather import weather_pb2, weather_pb2_grpc
@@ -43,7 +43,7 @@ class Client:
             maxsize: maximum number of messages to buffer.
 
         Returns:
-            Async generator of weather forecast data.
+            A channel receiver for weather forecast data.
         """
         stream_key = tuple(tuple(locations) + tuple(features))
 

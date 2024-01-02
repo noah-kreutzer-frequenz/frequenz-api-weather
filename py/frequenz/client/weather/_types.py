@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""Module to define the types used with the client"""
+"""Types used by the Weather Forecast API client."""
 
 from __future__ import annotations  # required for constructor type hinting
 
@@ -123,6 +123,7 @@ class Forecasts:
         """Convert a protobuf Forecast message to Forecast object."""
         return cls(_forecasts_pb=forecasts)
 
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def to_ndarray_vlf(
         self,
         validity_times: list[dt.timedelta] | None = None,
@@ -160,8 +161,6 @@ class Forecasts:
             num_features = len(
                 self._forecasts_pb.location_forecasts[0].forecasts[0].features
             )
-
-            # TODO: check
 
             # Look for the proto indexes of the filtered times, locations and features
             location_indexes = []
@@ -241,22 +240,28 @@ class Forecasts:
 
                 array_l_index += 1
 
-            # Check if the array shape matches the number of filtered times, locations and features
+            # Check if the array shape matches the number of filtered times, locations
+            # and features
             if array.shape[0] != len(validity_times_indexes):
                 print(
-                    f"Warning:  The count of validity times in the array({array.shape[0]}) does not match the expected time filter count ({validity_times_indexes}."
+                    f"Warning:  The count of validity times in the "
+                    f"array({array.shape[0]}) does not match the expected time "
+                    f"filter count ({validity_times_indexes}."
                 )
             if array.shape[1] != len(location_indexes):
                 print(
-                    f"Warning:  The count of location in the array ({array.shape[1]}) does not match the expected location filter count ({location_indexes})."
+                    f"Warning:  The count of location in the "
+                    f"array ({array.shape[1]}) does not match the expected location "
+                    f"filter count ({location_indexes})."
                 )
             if array.shape[2] != len(feature_indexes):
                 print(
-                    f"Warning: The count of features ({array.shape[2]}) does not match the feature filter count ({feature_indexes})."
+                    f"Warning: The count of features ({array.shape[2]}) does not "
+                    f"match the feature filter count ({feature_indexes})."
                 )
 
         # catch all exceptions
         except Exception as e:
-            raise RuntimeError(f"Error processing forecast data: {e}")
+            raise RuntimeError("Error processing forecast data") from e
 
         return array
