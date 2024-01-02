@@ -68,7 +68,6 @@ class ForecastFeature(enum.Enum):
 
 @dataclass(frozen=True)
 class Location:
-
     """Location data.
 
     Attributes:
@@ -131,7 +130,6 @@ class Forecasts:
         features: list[ForecastFeature] | None = None,
     ) -> np.ndarray[tuple[typing.Literal[3], typing.Any], np.dtype[np.float64]]:
         """Convert a Forecast object to numpy array and use NaN to mark irrelevant data."""
-
         # Check entry types
         if validity_times is not None and not all(
             isinstance(t, dt.timedelta) for t in validity_times

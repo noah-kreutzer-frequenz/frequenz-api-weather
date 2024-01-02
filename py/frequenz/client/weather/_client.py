@@ -40,7 +40,6 @@ class Client:
         Args:
             locations: locations to stream data for.
             features: features to stream data for.
-            maxsize: maximum number of messages to buffer.
 
         Returns:
             A channel receiver for weather forecast data.
