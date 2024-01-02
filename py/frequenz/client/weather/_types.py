@@ -8,6 +8,7 @@ from __future__ import annotations  # required for constructor type hinting
 import datetime as dt
 import enum
 import logging
+import typing
 from dataclasses import dataclass
 
 import numpy as np
@@ -127,7 +128,7 @@ class Forecasts:
         validity_times: list[dt.timedelta] | None = None,
         locations: list[Location] | None = None,
         features: list[ForecastFeature] | None = None,
-    ) -> np.ndarray:
+    ) -> np.ndarray[tuple[typing.Literal[3], typing.Any], np.dtype[np.float64]]:
         """Convert a Forecast object to numpy array and use NaN to mark irrelevant data."""
 
         # Check entry types

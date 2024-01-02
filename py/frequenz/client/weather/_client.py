@@ -24,7 +24,7 @@ class Client:
         self._svc_addr = svc_addr
         self._stub = weather_pb2_grpc.WeatherForecastServiceStub(grpc_channel)
         self._streams: dict[
-            tuple[list[Location], list[ForecastFeature]],
+            tuple[Location | ForecastFeature, ...],
             GrpcStreamingHelper[
                 weather_pb2.ReceiveLiveWeatherForecastResponse, Forecasts
             ],
@@ -45,12 +45,12 @@ class Client:
         Returns:
             Async generator of weather forecast data.
         """
-        stream_key = tuple(locations + features)
+        stream_key = tuple(tuple(locations) + tuple(features))
 
         if stream_key not in self._streams:
             self._streams[stream_key] = GrpcStreamingHelper(
                 f"weather-forecast-{stream_key}",
-                lambda: self._stub.ReceiveLiveWeatherForecast(
+                lambda: self._stub.ReceiveLiveWeatherForecast(  # type:ignore
                     weather_pb2.ReceiveLiveWeatherForecastRequest(
                         locations=(location.to_pb() for location in locations),
                         features=(feature.value for feature in features),
