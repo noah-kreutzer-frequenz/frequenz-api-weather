@@ -7,5 +7,5 @@ from frequenz.repo.config import nox
 from frequenz.repo.config.nox import default
 
 config = default.api_config.copy()
-config.source_paths = ["py/frequenz/client"]
+config.source_paths = ["py/frequenz/client/weather"]
 nox.configure(config)
