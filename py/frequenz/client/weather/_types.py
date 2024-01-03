@@ -153,29 +153,13 @@ class Forecasts:
 
         Returns:
             Numpy array of shape (num_validity_times, num_locations, num_features)
-        """
-        # Check entry types
-        if validity_times is not None and not all(
-            isinstance(t, dt.timedelta) for t in validity_times
-        ):
-            raise ValueError(
-                "validity_times must be a list of datetime.timedelta objects"
-            )
-        if locations is not None and not all(
-            isinstance(loc, Location) for loc in locations
-        ):
-            raise ValueError("locations must be a list of Location objects")
-        if features is not None and not all(
-            isinstance(feat, ForecastFeature) for feat in features
-        ):
-            raise ValueError("features must be a list of ForecastFeatureType objects")
 
+        Raises:
+            ValueError: If the forecasts data is missing or invalid.
+        """
         # check for empty forecasts data
-        if (
-            not hasattr(self, "_forecasts_pb")
-            or not self._forecasts_pb.location_forecasts
-        ):
-            raise ValueError("Forecast data is missing or invalid")
+        if not self._forecasts_pb.location_forecasts:
+            raise ValueError("Forecast data is missing or invalid.")
 
         try:
             num_times = len(self._forecasts_pb.location_forecasts[0].forecasts)
