@@ -135,7 +135,13 @@ class Forecasts:
         validity_times: list[dt.timedelta] | None = None,
         locations: list[Location] | None = None,
         features: list[ForecastFeature] | None = None,
-    ) -> np.ndarray[tuple[typing.Literal[3], typing.Any], np.dtype[np.float64]]:
+    ) -> np.ndarray[
+        # the shape is known to be 3 dimensional, but the length of each dimension is
+        # not fixed, so we use typing.Any, instead of the usual const generic
+        # parameters.
+        tuple[typing.Any, typing.Any, typing.Any],
+        np.dtype[np.float64],
+    ]:
         """Convert a Forecast object to numpy array and use NaN to mark irrelevant data.
 
         If any of the filters are None, all values for that parameter will be returned.
