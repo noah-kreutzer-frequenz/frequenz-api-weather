@@ -73,7 +73,7 @@ class Location:
     Attributes:
         latitude: latitude of the location.
         longitude: longitude of the location.
-        altitude: altitude of the location.
+        country_code: ISO 3166-1 alpha-2 country code of the location.
     """
 
     latitude: float
@@ -119,7 +119,14 @@ class Forecasts:
     def from_pb(
         cls, forecasts: weather_pb2.ReceiveLiveWeatherForecastResponse
     ) -> Forecasts:
-        """Convert a protobuf Forecast message to Forecast object."""
+        """Convert a protobuf Forecast message to Forecast object.
+
+        Args:
+            forecasts: protobuf message with live forecast data.
+
+        Returns:
+            Forecast object corresponding to the protobuf message.
+        """
         return cls(_forecasts_pb=forecasts)
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
@@ -129,7 +136,18 @@ class Forecasts:
         locations: list[Location] | None = None,
         features: list[ForecastFeature] | None = None,
     ) -> np.ndarray[tuple[typing.Literal[3], typing.Any], np.dtype[np.float64]]:
-        """Convert a Forecast object to numpy array and use NaN to mark irrelevant data."""
+        """Convert a Forecast object to numpy array and use NaN to mark irrelevant data.
+
+        If any of the filters are None, all values for that parameter will be returned.
+
+        Args:
+            validity_times: The validity times to filter by.
+            locations: The locations to filter by.
+            features: The features to filter by.
+
+        Returns:
+            Numpy array of shape (num_validity_times, num_locations, num_features)
+        """
         # Check entry types
         if validity_times is not None and not all(
             isinstance(t, dt.timedelta) for t in validity_times
