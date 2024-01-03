@@ -1,13 +1,14 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""Module to define the types used with the client"""
+"""Types used by the Weather Forecast API client."""
 
 from __future__ import annotations  # required for constructor type hinting
 
 import datetime as dt
 import enum
 import logging
+import typing
 from dataclasses import dataclass
 
 import numpy as np
@@ -67,13 +68,12 @@ class ForecastFeature(enum.Enum):
 
 @dataclass(frozen=True)
 class Location:
-
     """Location data.
 
     Attributes:
         latitude: latitude of the location.
         longitude: longitude of the location.
-        altitude: altitude of the location.
+        country_code: ISO 3166-1 alpha-2 country code of the location.
     """
 
     latitude: float
@@ -119,39 +119,47 @@ class Forecasts:
     def from_pb(
         cls, forecasts: weather_pb2.ReceiveLiveWeatherForecastResponse
     ) -> Forecasts:
-        """Convert a protobuf Forecast message to Forecast object."""
+        """Convert a protobuf Forecast message to Forecast object.
+
+        Args:
+            forecasts: protobuf message with live forecast data.
+
+        Returns:
+            Forecast object corresponding to the protobuf message.
+        """
         return cls(_forecasts_pb=forecasts)
 
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def to_ndarray_vlf(
         self,
         validity_times: list[dt.timedelta] | None = None,
         locations: list[Location] | None = None,
         features: list[ForecastFeature] | None = None,
-    ) -> np.ndarray:
-        """Convert a Forecast object to numpy array and use NaN to mark irrelevant data."""
+    ) -> np.ndarray[
+        # the shape is known to be 3 dimensional, but the length of each dimension is
+        # not fixed, so we use typing.Any, instead of the usual const generic
+        # parameters.
+        tuple[typing.Any, typing.Any, typing.Any],
+        np.dtype[np.float64],
+    ]:
+        """Convert a Forecast object to numpy array and use NaN to mark irrelevant data.
 
-        # Check entry types
-        if validity_times is not None and not all(
-            isinstance(t, dt.timedelta) for t in validity_times
-        ):
-            raise ValueError(
-                "validity_times must be a list of datetime.timedelta objects"
-            )
-        if locations is not None and not all(
-            isinstance(loc, Location) for loc in locations
-        ):
-            raise ValueError("locations must be a list of Location objects")
-        if features is not None and not all(
-            isinstance(feat, ForecastFeature) for feat in features
-        ):
-            raise ValueError("features must be a list of ForecastFeatureType objects")
+        If any of the filters are None, all values for that parameter will be returned.
 
+        Args:
+            validity_times: The validity times to filter by.
+            locations: The locations to filter by.
+            features: The features to filter by.
+
+        Returns:
+            Numpy array of shape (num_validity_times, num_locations, num_features)
+
+        Raises:
+            ValueError: If the forecasts data is missing or invalid.
+        """
         # check for empty forecasts data
-        if (
-            not hasattr(self, "_forecasts_pb")
-            or not self._forecasts_pb.location_forecasts
-        ):
-            raise ValueError("Forecast data is missing or invalid")
+        if not self._forecasts_pb.location_forecasts:
+            raise ValueError("Forecast data is missing or invalid.")
 
         try:
             num_times = len(self._forecasts_pb.location_forecasts[0].forecasts)
@@ -159,8 +167,6 @@ class Forecasts:
             num_features = len(
                 self._forecasts_pb.location_forecasts[0].forecasts[0].features
             )
-
-            # TODO: check
 
             # Look for the proto indexes of the filtered times, locations and features
             location_indexes = []
@@ -240,22 +246,28 @@ class Forecasts:
 
                 array_l_index += 1
 
-            # Check if the array shape matches the number of filtered times, locations and features
+            # Check if the array shape matches the number of filtered times, locations
+            # and features
             if array.shape[0] != len(validity_times_indexes):
                 print(
-                    f"Warning:  The count of validity times in the array({array.shape[0]}) does not match the expected time filter count ({validity_times_indexes}."
+                    f"Warning:  The count of validity times in the "
+                    f"array({array.shape[0]}) does not match the expected time "
+                    f"filter count ({validity_times_indexes}."
                 )
             if array.shape[1] != len(location_indexes):
                 print(
-                    f"Warning:  The count of location in the array ({array.shape[1]}) does not match the expected location filter count ({location_indexes})."
+                    f"Warning:  The count of location in the "
+                    f"array ({array.shape[1]}) does not match the expected location "
+                    f"filter count ({location_indexes})."
                 )
             if array.shape[2] != len(feature_indexes):
                 print(
-                    f"Warning: The count of features ({array.shape[2]}) does not match the feature filter count ({feature_indexes})."
+                    f"Warning: The count of features ({array.shape[2]}) does not "
+                    f"match the feature filter count ({feature_indexes})."
                 )
 
         # catch all exceptions
         except Exception as e:
-            raise RuntimeError(f"Error processing forecast data: {e}")
+            raise RuntimeError("Error processing forecast data") from e
 
         return array
