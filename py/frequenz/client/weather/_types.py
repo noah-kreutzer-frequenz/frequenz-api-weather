@@ -25,6 +25,11 @@ class ForecastFeature(enum.Enum):
     UNSPECIFIED = weather_pb2.ForecastFeature.FORECAST_FEATURE_UNSPECIFIED
     """Unspecified forecast feature."""
 
+    TEMPERATURE_2_METRE = (
+        weather_pb2.ForecastFeature.FORECAST_FEATURE_TEMPERATURE_2_METRE
+    )
+    """Temperature at 2m above the earth's surface."""
+
     U_WIND_COMPONENT_100_METRE = (
         weather_pb2.ForecastFeature.FORECAST_FEATURE_U_WIND_COMPONENT_100_METRE
     )
@@ -34,6 +39,16 @@ class ForecastFeature(enum.Enum):
         weather_pb2.ForecastFeature.FORECAST_FEATURE_V_WIND_COMPONENT_100_METRE
     )
     """Northward wind component at 100m altitude."""
+
+    U_WIND_COMPONENT_10_METRE = (
+        weather_pb2.ForecastFeature.FORECAST_FEATURE_U_WIND_COMPONENT_10_METRE
+    )
+    """Eastward wind component at 10m altitude."""
+
+    V_WIND_COMPONENT_10_METRE = (
+        weather_pb2.ForecastFeature.FORECAST_FEATURE_V_WIND_COMPONENT_10_METRE
+    )
+    """Northward wind component at 10m altitude."""
 
     SURFACE_SOLAR_RADIATION_DOWNWARDS = (
         weather_pb2.ForecastFeature.FORECAST_FEATURE_SURFACE_SOLAR_RADIATION_DOWNWARDS

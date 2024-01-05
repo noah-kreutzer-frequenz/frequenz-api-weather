@@ -16,6 +16,8 @@
 
 - Add eastward and northward components of wind speed at 10 m altitude.
 
+- Update the client to support the new temperature and 10m wind features.
+
 ## Bug Fixes
 
 <!-- Here goes notable bug fixes that are worth a special mention or explanation -->
