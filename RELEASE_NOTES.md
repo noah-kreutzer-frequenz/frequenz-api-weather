@@ -2,11 +2,10 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This release of the Frequenz Weather API adds support for streaming new
+temperature and wind speed forecasts.
 
 ## Upgrading
-
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
 ## New Features
 
@@ -19,5 +18,3 @@
 - Update the client to support the new temperature and 10m wind features.
 
 ## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
