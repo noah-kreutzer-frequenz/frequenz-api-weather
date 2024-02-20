@@ -179,6 +179,11 @@ class TestForecasts:
 
     """
 
+    valid_ts1 = datetime.fromisoformat("2024-01-01T01:00:00")
+    valid_ts2 = datetime.fromisoformat("2024-01-01T02:00:00")
+    valid_ts3 = datetime.fromisoformat("2024-01-01T02:00:00")
+    invalid_ts = datetime.fromisoformat("2024-01-02T03:00:00")
+
     def test_from_pb(
         self,
         forecastdata: tuple[
@@ -227,9 +232,7 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        valid_ts1 = datetime.fromisoformat("2024-01-01T01:00:00")
-        valid_ts2 = datetime.fromisoformat("2024-01-01T02:00:00")
-        validity_times = [valid_ts1, valid_ts2]
+        validity_times = [self.valid_ts1, self.valid_ts2]
 
         locations = [Location(latitude=42.0, longitude=18.0, country_code="US")]
         features = [
@@ -257,10 +260,7 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        valid_ts1 = datetime.fromisoformat("2024-01-01T01:00:00")
-        valid_ts2 = datetime.fromisoformat("2024-01-01T02:00:00")
-        valid_ts3 = datetime.fromisoformat("2024-01-01T02:00:00")
-        validity_times = [valid_ts1, valid_ts2, valid_ts3]
+        validity_times = [self.valid_ts1, self.valid_ts2, self.valid_ts3]
 
         locations = [
             Location(latitude=42.0, longitude=18.0, country_code="US"),
@@ -293,10 +293,7 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        valid_ts1 = datetime.fromisoformat("2024-01-01T01:00:00")
-        valid_ts2 = datetime.fromisoformat("2024-01-01T02:00:00")
-        invalid_ts = datetime.fromisoformat("2024-01-02T03:00:00")
-        validity_times = [valid_ts1, valid_ts2, invalid_ts]
+        validity_times = [self.valid_ts1, self.valid_ts2, self.invalid_ts]
 
         locations = [
             Location(latitude=50.0, longitude=18.0, country_code="US"),
