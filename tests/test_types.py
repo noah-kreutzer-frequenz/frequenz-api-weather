@@ -9,7 +9,7 @@
 # pylint doesn't understand the imports from the generated proto modules.
 # pylint: disable=no-name-in-module,no-member
 
-from datetime import timedelta
+from datetime import datetime
 
 import numpy as np
 from _pytest.logging import LogCaptureFixture
@@ -17,7 +17,7 @@ from frequenz.api.common.location_pb2 import Location as LocationProto
 from frequenz.api.weather import weather_pb2
 from frequenz.client.weather._types import ForecastFeature, Forecasts, Location
 from google.protobuf.timestamp_pb2 import Timestamp
-from pytest import fixture
+from pytest import CaptureFixture, fixture
 
 
 class TestForecastFeatureType:
@@ -179,6 +179,11 @@ class TestForecasts:
 
     """
 
+    valid_ts1 = datetime.fromisoformat("2024-01-01T01:00:00")
+    valid_ts2 = datetime.fromisoformat("2024-01-01T02:00:00")
+    valid_ts3 = datetime.fromisoformat("2024-01-01T02:00:00")
+    invalid_ts = datetime.fromisoformat("2024-01-02T03:00:00")
+
     def test_from_pb(
         self,
         forecastdata: tuple[
@@ -227,7 +232,8 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        validity_times = [timedelta(hours=2), timedelta(hours=1)]
+        validity_times = [self.valid_ts1, self.valid_ts2]
+
         locations = [Location(latitude=42.0, longitude=18.0, country_code="US")]
         features = [
             ForecastFeature.V_WIND_COMPONENT_100_METRE,
@@ -254,7 +260,8 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        validity_times = [timedelta(hours=3), timedelta(hours=1)]
+        validity_times = [self.valid_ts1, self.valid_ts2, self.valid_ts3]
+
         locations = [
             Location(latitude=42.0, longitude=18.0, country_code="US"),
             Location(latitude=43.0, longitude=19.0, country_code="CA"),
@@ -276,6 +283,7 @@ class TestForecasts:
 
     def test_to_ndarray_vlf_with_missing_parameters(
         self,
+        capsys: CaptureFixture,  # type: ignore
         forecastdata: tuple[
             weather_pb2.ReceiveLiveWeatherForecastResponse, int, int, int
         ],
@@ -285,7 +293,8 @@ class TestForecasts:
         forecasts_proto, num_times, num_locations, num_features = forecastdata
         forecasts = Forecasts.from_pb(forecasts_proto)
 
-        validity_times = [timedelta(hours=1), timedelta(hours=2), timedelta(days=1)]
+        validity_times = [self.valid_ts1, self.valid_ts2, self.invalid_ts]
+
         locations = [
             Location(latitude=50.0, longitude=18.0, country_code="US"),
             Location(latitude=43.0, longitude=19.0, country_code="CA"),
@@ -309,3 +318,6 @@ class TestForecasts:
             len(locations) - 1,
             len(features) - 1,
         )
+        assert array[0, 0, 0] == 100
+        captured = capsys.readouterr()
+        assert "Warning" in captured.out

@@ -147,7 +147,7 @@ class Forecasts:
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def to_ndarray_vlf(
         self,
-        validity_times: list[dt.timedelta] | None = None,
+        validity_times: list[dt.datetime] | None = None,
         locations: list[Location] | None = None,
         features: list[ForecastFeature] | None = None,
     ) -> np.ndarray[
@@ -188,11 +188,6 @@ class Forecasts:
             validity_times_indexes = []
             feature_indexes = []
 
-            # get the creation timestamp for calculating the validity timedeltas
-            creation_ts = self._forecasts_pb.location_forecasts[
-                0
-            ].creation_ts.ToDatetime()
-
             # get the location indexes of the proto for the filtered locations
             if locations:
                 for location in locations:
@@ -211,9 +206,7 @@ class Forecasts:
                     for t_index, val_time in enumerate(
                         self._forecasts_pb.location_forecasts[0].forecasts
                     ):
-                        if req_validitiy_time == (
-                            val_time.valid_at_ts.ToDatetime() - creation_ts
-                        ):
+                        if req_validitiy_time == val_time.valid_at_ts.ToDatetime():
                             validity_times_indexes.append(t_index)
                             break
             else:
@@ -263,19 +256,21 @@ class Forecasts:
 
             # Check if the array shape matches the number of filtered times, locations
             # and features
-            if array.shape[0] != len(validity_times_indexes):
+            if validity_times is not None and array.shape[0] != len(validity_times):
                 print(
-                    f"Warning:  The count of validity times in the "
-                    f"array({array.shape[0]}) does not match the expected time "
-                    f"filter count ({validity_times_indexes}."
+                    (
+                        f"Warning:  The count of validity times in the "
+                        f"array({array.shape[0]}) does not match the expected time "
+                        f"filter count ({validity_times_indexes}."
+                    )
                 )
-            if array.shape[1] != len(location_indexes):
+            if locations is not None and array.shape[1] != len(location_indexes):
                 print(
                     f"Warning:  The count of location in the "
                     f"array ({array.shape[1]}) does not match the expected location "
                     f"filter count ({location_indexes})."
                 )
-            if array.shape[2] != len(feature_indexes):
+            if features is not None and array.shape[2] != len(feature_indexes):
                 print(
                     f"Warning: The count of features ({array.shape[2]}) does not "
                     f"match the feature filter count ({feature_indexes})."
