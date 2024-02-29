@@ -3,11 +3,14 @@
 
 """The Weather Forecast API client."""
 
+from datetime import datetime
+
 import grpc
 from frequenz.api.weather import weather_pb2, weather_pb2_grpc
 from frequenz.channels import Receiver
 from frequenz.client.base.grpc_streaming_helper import GrpcStreamingHelper
 
+from ._historical_forecast_iterator import HistoricalForecastIterator
 from ._types import ForecastFeature, Forecasts, Location
 
 
@@ -58,3 +61,23 @@ class Client:
                 Forecasts.from_pb,
             )
         return self._streams[stream_key].new_receiver()
+
+    def hist_forecast_iterator(
+        self,
+        locations: list[Location],
+        features: list[ForecastFeature],
+        start: datetime,
+        end: datetime,
+    ) -> HistoricalForecastIterator:
+        """Stream historical weather forecast data.
+
+        Args:
+            locations: locations to stream data for.
+            features: features to stream data for.
+            start: start of the time range to stream data for.
+            end: end of the time range to stream data for.
+
+        Returns:
+            A channel receiver for weather forecast data.
+        """
+        return HistoricalForecastIterator(self._stub, locations, features, start, end)
