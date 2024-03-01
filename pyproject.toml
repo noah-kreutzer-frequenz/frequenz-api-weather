@@ -28,8 +28,8 @@ requires-python = ">= 3.11, < 4"
 dependencies = [
   "googleapis-common-protos >= 1.62.0, < 2",
   "grpcio >= 1.54.2, < 2",
-  "frequenz-channels >= 0.16.0, < 0.17.0",
-  "frequenz-client-base >= 0.1.0, < 0.2",
+  "frequenz-channels == 1.0.0b2",
+  "frequenz-client-base >= 0.2.0, < 0.3",
   "numpy >= 1.24.2, < 2",
 ]
 dynamic = ["version"]

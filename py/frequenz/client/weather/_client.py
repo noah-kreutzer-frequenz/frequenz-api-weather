@@ -6,7 +6,7 @@
 import grpc
 from frequenz.api.weather import weather_pb2, weather_pb2_grpc
 from frequenz.channels import Receiver
-from frequenz.client.base.grpc_streaming_helper import GrpcStreamingHelper
+from frequenz.client.base.streaming import GrpcStreamBroadcaster
 
 from ._types import ForecastFeature, Forecasts, Location
 
@@ -25,7 +25,7 @@ class Client:
         self._stub = weather_pb2_grpc.WeatherForecastServiceStub(grpc_channel)
         self._streams: dict[
             tuple[Location | ForecastFeature, ...],
-            GrpcStreamingHelper[
+            GrpcStreamBroadcaster[
                 weather_pb2.ReceiveLiveWeatherForecastResponse, Forecasts
             ],
         ] = {}
@@ -47,7 +47,7 @@ class Client:
         stream_key = tuple(tuple(locations) + tuple(features))
 
         if stream_key not in self._streams:
-            self._streams[stream_key] = GrpcStreamingHelper(
+            self._streams[stream_key] = GrpcStreamBroadcaster(
                 f"weather-forecast-{stream_key}",
                 lambda: self._stub.ReceiveLiveWeatherForecast(  # type:ignore
                     weather_pb2.ReceiveLiveWeatherForecastRequest(
