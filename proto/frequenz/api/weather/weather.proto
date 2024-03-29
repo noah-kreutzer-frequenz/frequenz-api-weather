@@ -10,11 +10,11 @@ syntax = "proto3";
 
 package frequenz.api.weatherforecast.v1;
 
-import "frequenz/api/common/location.proto";
-import "frequenz/api/common/pagination/pagination_info.proto";
-import "frequenz/api/common/pagination/pagination_params.proto";
 import "google/protobuf/timestamp.proto";
 
+import "frequenz/api/common/v1/location.proto";
+import "frequenz/api/common/v1/pagination/pagination_info.proto";
+import "frequenz/api/common/v1/pagination/pagination_params.proto";
 
 // Service provides operations related to retrieving weather forecasts for
 // locations.
@@ -102,7 +102,7 @@ message GetHistoricalWeatherForecastRequest {
   // The locations for which the forecast is being requested.
   // The maximum number of locations that can be requested is 50. If the
   // request exceeds this limit, the API will respond with an error.
-  repeated frequenz.api.weatherforecast.v1.Location locations = 1;
+  repeated frequenz.api.common.v1.Location locations = 1;
 
   // List of required features. If none are specified, all available features
   // will be returned.
@@ -119,7 +119,7 @@ message GetHistoricalWeatherForecastRequest {
   // The parameters define the 'page_size' and the 'page_token'. An inital
   // query of a request will omit the 'page_token'. Subsequent queries of the
   // same request must include the 'page_token' from the previous response.
-  frequenz.api.weatherforecast.v1.PaginationParams
+  frequenz.api.common.v1.pagination.PaginationParams
     pagination_params = 5;
 }
 
@@ -130,7 +130,7 @@ message ReceiveLiveWeatherForecastRequest {
   // The locations for which the forecast is being requested.
   // The maximum number of locations that can be requested is 50. If the
   // request exceeds this limit, the API will respond with an error.
-  repeated frequenz.api.weatherforecast.v1.Location locations = 1;
+  repeated frequenz.api.common.v1.Location locations = 1;
 
   // List of required features. If none are specified, all available features
   // will be streamed.
@@ -166,7 +166,7 @@ message LocationForecast {
   repeated Forecasts forecasts = 1;
 
   // The location for which the weather data is returned.
-  frequenz.api.weatherforecast.v1.Location location = 2;
+  frequenz.api.common.v1.Location location = 2;
 
   // The UTC timestamp indicating when the forecast was originally created.
   google.protobuf.Timestamp creation_ts = 3;
@@ -180,7 +180,7 @@ message GetHistoricalWeatherForecastResponse {
   // The pagination_info contains the number of 'total_items' in the response
   // and the 'next_page_token' for the subsequent query of the request. It is
   // omitted in the last response.
-  frequenz.api.weatherforecast.v1.PaginationInfo pagination_info = 2;
+  frequenz.api.common.v1.pagination.PaginationInfo pagination_info = 2;
 }
 
 // The message encapsulates a collection of live weather forecasts, each
