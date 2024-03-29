@@ -13,6 +13,10 @@ updates.
 - `validity_times` in the `to_ndarray_vlf` method on received `Forecasts` is now
   specified as a list of `datetime`s, and no longer a list of `timedelta`s.
 
+- The location and pagination proto files are now again imported from the
+ ´frequenz-api-common´ submodule instead of being imported from local files.
+ The local files are removed.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
