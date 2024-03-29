@@ -13,7 +13,7 @@ from datetime import datetime
 
 import numpy as np
 from _pytest.logging import LogCaptureFixture
-from frequenz.api.common.location_pb2 import Location as LocationProto
+from frequenz.api.common.v1.location_pb2 import Location as LocationProto
 from frequenz.api.weather import weather_pb2
 from frequenz.client.weather._types import ForecastFeature, Forecasts, Location
 from google.protobuf.timestamp_pb2 import Timestamp
