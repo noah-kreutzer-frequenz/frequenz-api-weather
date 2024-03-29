@@ -6,7 +6,7 @@
 from datetime import datetime
 from typing import Any, AsyncIterator, List
 
-from frequenz.api.common.pagination import pagination_params_pb2
+from frequenz.api.common.v1.pagination import pagination_params_pb2
 from frequenz.api.weather import weather_pb2, weather_pb2_grpc
 from google.protobuf import timestamp_pb2
 

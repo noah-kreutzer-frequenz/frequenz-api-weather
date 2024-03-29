@@ -12,7 +12,7 @@ import typing
 from dataclasses import dataclass
 
 import numpy as np
-from frequenz.api.common import location_pb2
+from frequenz.api.common.v1 import location_pb2
 from frequenz.api.weather import weather_pb2
 
 # Set up logging
