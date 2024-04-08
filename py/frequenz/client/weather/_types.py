@@ -303,7 +303,6 @@ class HistoricalForecasts:
         """
         return cls(_forecasts_pb=forecasts)
 
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     def flatten(
         self,
     ) -> np.ndarray[
@@ -325,7 +324,6 @@ class HistoricalForecasts:
         return flatten(list(self._forecasts_pb.location_forecasts))
 
 
-# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def flatten(
     location_forecasts: list[weather_pb2.LocationForecast],
 ) -> np.ndarray[

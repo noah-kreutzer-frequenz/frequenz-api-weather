@@ -4,19 +4,20 @@
 """The Historical Forecast Iterator."""
 
 from datetime import datetime
-from typing import Any, AsyncIterator, List
+from typing import AsyncIterator, List
 
 from frequenz.api.common.v1.pagination import pagination_params_pb2
 from frequenz.api.weather import weather_pb2, weather_pb2_grpc
 from google.protobuf import timestamp_pb2
 
-from ._types import ForecastFeature, Location
+from ._types import ForecastFeature, HistoricalForecasts, Location
 
-PAGE_SIZE = 20
+DEFAULT_PAGE_SIZE = 20
 EMPTY_PAGE_TOKEN = ""
 
 
-class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
+# pylint: disable=too-many-instance-attributes
+class HistoricalForecastIterator(AsyncIterator[HistoricalForecasts]):
     """An iterator over historical weather forecasts."""
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -26,6 +27,7 @@ class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
         features: list[ForecastFeature],
         start: datetime,
         end: datetime,
+        page_size: int = DEFAULT_PAGE_SIZE,
     ) -> None:
         """Initialize the iterator.
 
@@ -35,6 +37,7 @@ class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
             features: Features to get historical weather forecasts for.
             start: Start of the time range to get historical weather forecasts for.
             end: End of the time range to get historical weather forecasts for.
+            page_size: The number of historical weather forecasts to get per page.
         """
         self._stub = stub
         self.locations = locations
@@ -46,7 +49,8 @@ class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
         self.end_ts.FromDatetime(end)
 
         self.location_forecasts: List[weather_pb2.LocationForecast] = []
-        self.page_token = None
+        self.page_token: str | None = None
+        self.page_size = page_size
 
     def __aiter__(self) -> "HistoricalForecastIterator":
         """Return the iterator.
@@ -56,7 +60,7 @@ class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
         """
         return self
 
-    async def __anext__(self) -> weather_pb2.LocationForecast:
+    async def __anext__(self) -> HistoricalForecasts:
         """Get the next historical weather forecast.
 
         Returns:
@@ -65,29 +69,34 @@ class HistoricalForecastIterator(AsyncIterator[weather_pb2.LocationForecast]):
         Raises:
             StopAsyncIteration: If there are no more historical weather forecasts.
         """
-        if len(self.location_forecasts) == 0 and self.page_token == EMPTY_PAGE_TOKEN:
+        if self.page_token == EMPTY_PAGE_TOKEN:
             raise StopAsyncIteration
 
-        if self.location_forecasts is None or len(self.location_forecasts) == 0:
-            pagination_params = pagination_params_pb2.PaginationParams()
-            pagination_params.page_size = PAGE_SIZE
-            if self.page_token is not None:
-                pagination_params.page_token = self.page_token
+        pagination_params = pagination_params_pb2.PaginationParams()
+        pagination_params.page_size = self.page_size
+        if self.page_token is not None:
+            pagination_params.page_token = self.page_token
 
-            response: Any = (
-                await self._stub.GetHistoricalWeatherForecast(  # type:ignore
-                    weather_pb2.GetHistoricalWeatherForecastRequest(
-                        locations=(location.to_pb() for location in self.locations),
-                        features=(feature.value for feature in self.features),
-                        start_ts=self.start_ts,
-                        end_ts=self.end_ts,
-                        pagination_params=pagination_params,
-                    )
+        response: weather_pb2.GetHistoricalWeatherForecastResponse = (
+            await self._stub.GetHistoricalWeatherForecast(  # type:ignore
+                weather_pb2.GetHistoricalWeatherForecastRequest(
+                    locations=(location.to_pb() for location in self.locations),
+                    features=(feature.value for feature in self.features),
+                    start_ts=self.start_ts,
+                    end_ts=self.end_ts,
+                    pagination_params=pagination_params,
                 )
             )
+        )
 
-            self.page_token = response.pagination_info.next_page_token
-            self.location_forecasts = response.location_forecasts
+        if (
+            response.pagination_info is None
+            or response.pagination_info.next_page_token is None
+        ):
+            raise StopAsyncIteration
 
-        location_forecast: weather_pb2.LocationForecast = self.location_forecasts.pop(0)
-        return location_forecast
+        self.page_token = response.pagination_info.next_page_token
+        if len(response.location_forecasts) == 0:
+            raise StopAsyncIteration
+
+        return HistoricalForecasts.from_pb(response)
