@@ -9,6 +9,7 @@ import datetime as dt
 import enum
 import logging
 import typing
+from collections import namedtuple
 from dataclasses import dataclass
 
 import numpy as np
@@ -283,6 +284,12 @@ class Forecasts:
         return array
 
 
+ForecastData = namedtuple(
+    "ForecastData",
+    ["creation_ts", "latitude", "longitude", "validity_ts", "feature", "value"],
+)
+
+
 @dataclass(frozen=True)
 class HistoricalForecasts:
     """Historical weather forecast data."""
@@ -305,14 +312,11 @@ class HistoricalForecasts:
 
     def flatten(
         self,
-    ) -> np.ndarray[
-        tuple[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any],
-        np.dtype[np.float64],
-    ]:
-        """Flatten a Forecast object to a numpy array of tuples of data.
+    ) -> list[ForecastData]:
+        """Flatten a Forecast object to a list of named tuples of data.
 
         Returns:
-            Numpy array of tuples with the flattened forecast data.
+            List of named tuples with the flattened forecast data.
 
         Raises:
             ValueError: If the forecasts data is missing or invalid.
@@ -326,11 +330,8 @@ class HistoricalForecasts:
 
 def flatten(
     location_forecasts: list[weather_pb2.LocationForecast],
-) -> np.ndarray[
-    tuple[typing.Any, typing.Any, typing.Any, typing.Any, typing.Any, typing.Any],
-    np.dtype[np.float64],
-]:
-    """Flatten a Forecast object to a numpy array of tuples of data.
+) -> list[ForecastData]:
+    """Flatten a Forecast object to a list of named tuples of data.
 
     Each tuple contains the following data:
     - creation timestamp
@@ -343,21 +344,22 @@ def flatten(
     Args:
         location_forecasts: The location forecasts to flatten.
     Returns:
-        Numpy array of tuples with the flattened forecast data.
+        List of named tuples with the flattened forecast data.
     """
     data = []
     for location_forecast in location_forecasts:
         for forecasts in location_forecast.forecasts:
             for feature_forecast in forecasts.features:
+                # Create and append an instance of the named tuple instead of a plain tuple
                 data.append(
-                    (
-                        location_forecast.creation_ts.ToDatetime(),
-                        location_forecast.location.latitude,
-                        location_forecast.location.longitude,
-                        forecasts.valid_at_ts.ToDatetime(),
-                        ForecastFeature(feature_forecast.feature),
-                        feature_forecast.value,
+                    ForecastData(
+                        creation_ts=location_forecast.creation_ts.ToDatetime(),
+                        latitude=location_forecast.location.latitude,
+                        longitude=location_forecast.location.longitude,
+                        validity_ts=forecasts.valid_at_ts.ToDatetime(),
+                        feature=ForecastFeature(feature_forecast.feature),
+                        value=feature_forecast.value,
                     )
                 )
 
-    return np.array(data)
+    return data
