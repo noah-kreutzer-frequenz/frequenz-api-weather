@@ -15,7 +15,7 @@ import sys
 
 import grpc.aio as grpcaio
 from frequenz.client.weather._client import Client
-from frequenz.client.weather._types import ForecastFeature, Location
+from frequenz.client.weather._types import ForecastData, ForecastFeature, Location
 
 _service_address = sys.argv[1]
 
@@ -53,11 +53,21 @@ async def main(service_address: str) -> None:
         features=features, locations=locations, start=start, end=end
     )
 
-    async for location_forecast in location_forecast_iterator:
-        for forecasts in location_forecast.forecasts:
-            print("Timestamp:", forecasts.valid_at_ts)
-            for feature_forecast in forecasts.features:
-                print(feature_forecast)
+    rows: list[ForecastData] = []
+    async for forecasts in location_forecast_iterator:
+        # You can work directly with the protobuf object forecasts.
+        # Here we choose to flatten into a numpy array instead.
+        _rows: list[ForecastData] = forecasts.flatten()
+        rows.extend(_rows)
+
+    # Optionally, you can construct a pandas dataframe from the data.
+    # pylint: disable=import-outside-toplevel, import-error
+    import pandas as pd  # type: ignore[import]
+
+    # pylint: enable=import-outside-toplevel, import-error
+
+    df = pd.DataFrame(rows)
+    print(df)
 
 
 asyncio.run(main(_service_address))

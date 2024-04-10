@@ -9,6 +9,7 @@ import datetime as dt
 import enum
 import logging
 import typing
+from collections import namedtuple
 from dataclasses import dataclass
 
 import numpy as np
@@ -281,3 +282,84 @@ class Forecasts:
             raise RuntimeError("Error processing forecast data") from e
 
         return array
+
+
+ForecastData = namedtuple(
+    "ForecastData",
+    ["creation_ts", "latitude", "longitude", "validity_ts", "feature", "value"],
+)
+
+
+@dataclass(frozen=True)
+class HistoricalForecasts:
+    """Historical weather forecast data."""
+
+    _forecasts_pb: weather_pb2.GetHistoricalWeatherForecastResponse
+
+    @classmethod
+    def from_pb(
+        cls, forecasts: weather_pb2.GetHistoricalWeatherForecastResponse
+    ) -> HistoricalForecasts:
+        """Convert a protobuf Forecast message to Forecast object.
+
+        Args:
+            forecasts: protobuf message with historical forecast data.
+
+        Returns:
+            Forecast object corresponding to the protobuf message.
+        """
+        return cls(_forecasts_pb=forecasts)
+
+    def flatten(
+        self,
+    ) -> list[ForecastData]:
+        """Flatten a Forecast object to a list of named tuples of data.
+
+        Returns:
+            List of named tuples with the flattened forecast data.
+
+        Raises:
+            ValueError: If the forecasts data is missing or invalid.
+        """
+        # check for empty forecasts data
+        if not self._forecasts_pb.location_forecasts:
+            raise ValueError("Forecast data is missing or invalid.")
+
+        return flatten(list(self._forecasts_pb.location_forecasts))
+
+
+def flatten(
+    location_forecasts: list[weather_pb2.LocationForecast],
+) -> list[ForecastData]:
+    """Flatten a Forecast object to a list of named tuples of data.
+
+    Each tuple contains the following data:
+    - creation timestamp
+    - latitude
+    - longitude
+    - validity timestamp
+    - feature
+    - forecast value
+
+    Args:
+        location_forecasts: The location forecasts to flatten.
+    Returns:
+        List of named tuples with the flattened forecast data.
+    """
+    data = []
+    for location_forecast in location_forecasts:
+        for forecasts in location_forecast.forecasts:
+            for feature_forecast in forecasts.features:
+                # Create and append an instance of the named tuple instead of a plain tuple
+                data.append(
+                    ForecastData(
+                        creation_ts=location_forecast.creation_ts.ToDatetime(),
+                        latitude=location_forecast.location.latitude,
+                        longitude=location_forecast.location.longitude,
+                        validity_ts=forecasts.valid_at_ts.ToDatetime(),
+                        feature=ForecastFeature(feature_forecast.feature),
+                        value=feature_forecast.value,
+                    )
+                )
+
+    return data
