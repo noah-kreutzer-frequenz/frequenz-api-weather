@@ -8,6 +8,8 @@
  ´frequenz-api-common´ submodule instead of being imported from local files.
  The local files are removed.
 
+- The required version of the ´frequenz-channels` is updated to 1.0.0.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
