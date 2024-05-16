@@ -14,6 +14,8 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+- The client has been extended to iterate over historical weather forecast data.
+
+- Historical location forecast data pages are now exposed as a flattened numpy array for easier use.
 
 ## Bug Fixes
