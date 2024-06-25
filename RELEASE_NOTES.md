@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+- The minimum required version of `frequenz-client-base` is now 0.4.0
 
 ## New Features
 
